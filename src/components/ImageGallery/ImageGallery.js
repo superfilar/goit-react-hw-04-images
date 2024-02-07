@@ -1,37 +1,46 @@
-import React, { Component } from 'react';
+import React, { useEffect } from 'react';
 import style from './ImageGallery.module.css';
-
 import ImageGalleryItem from '../ImageGalleryItem/ImageGalleryItem';
 import propTypes from 'prop-types';
+import { nanoid } from 'nanoid';
 
-class ImageGallery extends Component {
-  static defaultProps = { imagesArray: propTypes.array };
-  static propTypes = {
-    loader: propTypes.func,
-    imagesArray: propTypes.array,
-    modalFn: propTypes.func,
-  };
-  componentDidMount() {
-    this.props.loader(true);
-  }
+const ImageGallery = ({ loader, imagesArray, modalFn }) => {
+  // static defaultProps = { imagesArray: propTypes.array };
+  // static propTypes = {
+  //   loader: propTypes.func,
+  //   imagesArray: propTypes.array,
+  //   modalFn: propTypes.func,
+  // };
 
-  render() {
-    return (
+  useEffect(() => {
+    loader(true);
+    return loader(false);
+  }, [loader]);
+
+  return (
+    <>
       <ul className={style.ImageGallery}>
-        {this.props.imagesArray.map((image, idx) => {
+        {imagesArray.map((image, idx) => {
           return (
             <ImageGalleryItem
-              key={image.id}
+              key={nanoid()}
+              imageKey={image.id}
+              modalFn={modalFn}
               imageLink={image.webformatURL}
-              imagAlt={image.tags}
+              imagAlt={image.tag}
               largeImageURL={image.largeImageURL}
-              modalFn={this.props.modalFn}
             />
           );
         })}
       </ul>
-    );
-  }
-}
+    </>
+  );
+};
+
+ImageGallery.propTypes = {
+  loader: propTypes.func.isRequired,
+  imagesArray: propTypes.array.isRequired,
+  modalFn: propTypes.func.isRequired,
+};
 
 export default ImageGallery;

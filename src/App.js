@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { useState } from 'react';
 import axios from 'axios';
 import { InfinitySpin } from 'react-loader-spinner';
 import Searchbar from './components/Searchbar/Searchbar';
@@ -8,109 +8,116 @@ import Modal from './components/Modal/Modal';
 
 const API = '41283534-4829f00afc3272658e61d5192';
 
-class App extends Component {
-  state = {
-    searchWords: '',
-    images: [],
-    showModal: false,
-    modalImage: '',
-    showLoader: false,
-    currentPage: 1,
+// class App extends Component {
+//   state = {
+//     searchWords: '',
+//     images: [],
+//     showModal: false,
+//     modalImage: '',
+//     showLoader: false,
+//     currentPage: 1,
+//   };
+
+const App = () => {
+  const [searchWords, setSearchWords] = useState('');
+  const [images, setImages] = useState([]);
+  const [showModal, setShowModal] = useState(false);
+  const [modalImage, setModalImage] = useState('');
+  const [showLoader, setShowLoader] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+
+  const toggleModal = () => {
+    return setShowModal(!showModal);
   };
 
-  toggleModal = () => {
-    this.setState(({ showModal }) => ({ showModal: !showModal }));
+  const setModalImageFn = linkImg => {
+    return setModalImage(linkImg);
   };
 
-  pushImagesToState = response => {
-    const imagesFromResponse = response.data.hits;
-    let newSearchArray = [];
-    newSearchArray = [...this.state.images, ...imagesFromResponse];
-    this.setState(({ images }) => ({ images: newSearchArray }));
+  const openLargeImage = linkImg => {
+    setModalImageFn(linkImg);
+    toggleModal();
   };
 
-  setModalImage = linkImg => {
-    return this.setState(({ modalImage }) => ({ modalImage: linkImg }));
+  const loaderToggle = bool => {
+    return setShowLoader(bool);
   };
 
-  openLargeImage = linkImg => {
-    this.setModalImage(linkImg);
-    this.toggleModal();
-  };
-
-  loaderToggle = bool => {
-    return this.setState(({ showLoader }) => ({ showLoader: bool }));
-  };
-
-  getImages(words, page) {
-    this.loaderToggle(true);
+  const getImages = (words, page) => {
+    loaderToggle(true);
     axios
       .get(
         `https://pixabay.com/api/?q=${words}&page=${page}&key=${API}&image_type=photo&orientation=horizontal&per_page=12`
       )
       .then(response => {
-        this.pushImagesToState(response);
-        this.loaderToggle(false);
-        this.setState(prevState => ({
-          currentPage: prevState.currentPage + 1,
-        }));
+        pushImagesToState(response);
+        loaderToggle(false);
+        setCurrentPage(currentPage => currentPage + 1);
       });
-  }
+  };
 
-  searchFormSubmit = event => {
+  const searchFormSubmit = event => {
     event.preventDefault();
-    this.setState({
-      searchWords: '',
-      images: [],
-      showModal: false,
-      modalImage: '',
-      currentPage: 1,
-    });
+    console.log('Wyszukano wyniki');
+    setSearchWords('');
+    setImages([]);
+    setShowModal(false);
+    setModalImage('');
+    setCurrentPage(currentPage);
+    console.log('Jestes na stronie numer ' + currentPage);
+
     const searchWordsValue = event.target[1].value;
 
-    this.setState({ searchWords: searchWordsValue });
+    setSearchWords(searchWordsValue);
     const page = 1;
-    this.getImages(searchWordsValue, page);
+    getImages(searchWordsValue, page);
     event.target.reset();
   };
 
-  loadMoreFn = () => {
-    this.loaderToggle(true);
-    this.getImages(this.state.searchWords, this.state.currentPage);
+  const loadMoreFn = () => {
+    loaderToggle(true);
+    getImages(searchWords, currentPage);
   };
 
-  render() {
-    return (
-      <div>
-        <div className="App">
-          <Searchbar onSubmit={this.searchFormSubmit} />
-          {this.state.searchWords !== '' && (
-            <ImageGallery
-              loader={this.loaderToggle}
-              imagesArray={this.state.images}
-              modalFn={this.openLargeImage}
-            ></ImageGallery>
-          )}
-          {this.state.showLoader && (
-            <InfinitySpin
-              visible={true}
-              width="200"
-              color="#4fa94d"
-              ariaLabel="infinity-spin-loading"
-            />
-          )}
-          {this.state.searchWords !== '' && <Button fn={this.loadMoreFn} />}
-        </div>
-        <div className="modal-root">
-          {this.state.showModal && (
-            <Modal closeFn={this.toggleModal} loader={this.loaderToggle}>
-              <img src={this.state.modalImage} alt="modal" />
-            </Modal>
-          )}
-        </div>
+  const pushImagesToState = response => {
+    const imagesFromResponse = response.data.hits;
+    let newSearchArray = [];
+    newSearchArray = [...images, ...imagesFromResponse];
+    setImages(newSearchArray);
+  };
+
+  return (
+    <div>
+      <div className="App">
+        <Searchbar onSubmit={searchFormSubmit} />
+        {searchWords !== '' && (
+          <ImageGallery
+            loader={loaderToggle}
+            imagesArray={images}
+            modalFn={openLargeImage}
+          ></ImageGallery>
+        )}
+        {showLoader && (
+          <InfinitySpin
+            visible={true}
+            width="200"
+            color="#4fa94d"
+            ariaLabel="infinity-spin-loading"
+          />
+        )}
+        {searchWords !== '' && <Button fn={loadMoreFn} />}
       </div>
-    );
-  }
-}
+      <div className="modal-root">
+        {showModal && (
+          <Modal
+            onClose={toggleModal}
+            loader={loaderToggle}
+            modalImage={modalImage}
+          />
+        )}
+      </div>
+    </div>
+  );
+};
 
 export default App;

@@ -1,15 +1,14 @@
-import React, { Component } from 'react';
+import React from 'react';
 import propTypes from 'prop-types';
 import style from './SearchBar.module.css';
 
-class Searchbar extends Component {
-  static propTypes = { onSubmit: propTypes.func };
-  render() {
+const Searchbar = ({onSubmit}) => {
+  
     return (
       <header className={style.Searchbar}>
         <form
           className={style.SearchForm}
-          onSubmit={event => this.props.onSubmit(event)}
+          onSubmit={event => onSubmit(event)}
         >
           <button type="submit" className={style.SearchForm_button}>
             <svg
@@ -39,6 +38,9 @@ class Searchbar extends Component {
       </header>
     );
   }
+
+Searchbar.propTypes = {
+  onSubmit: propTypes.func.isRequired
 }
 
 export default Searchbar;
