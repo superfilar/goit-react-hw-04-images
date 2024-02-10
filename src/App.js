@@ -53,7 +53,7 @@ const App = () => {
         console.log(page, words);
         pushImagesToState(response, words, page);
         loaderToggle(false);
-        setCurrentPage(currentPage => currentPage + 1);
+        setCurrentPage(page + 1);
       });
   };
 
