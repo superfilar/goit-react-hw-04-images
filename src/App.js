@@ -50,10 +50,30 @@ const App = () => {
         `https://pixabay.com/api/?q=${words}&page=${page}&key=${API}&image_type=photo&orientation=horizontal&per_page=12`
       )
       .then(response => {
-        pushImagesToState(response);
+        pushImagesToState(response, words);
         loaderToggle(false);
         setCurrentPage(currentPage => currentPage + 1);
       });
+  };
+
+  const loadMoreFn = () => {
+    loaderToggle(true);
+    getImages(searchWords, currentPage);
+  };
+
+  const pushImagesToState = (response, words) => {
+    const imagesFromResponse = response.data.hits;
+    let newSearchArray = [];
+    if (words !== searchWords) {
+      newSearchArray = [...imagesFromResponse];
+    } else {
+      if (images === imagesFromResponse) {
+        newSearchArray = [...images];
+      } else {
+        newSearchArray = [...images, ...imagesFromResponse];
+      }
+    }
+    setImages(newSearchArray);
   };
 
   const searchFormSubmit = event => {
@@ -61,6 +81,7 @@ const App = () => {
     console.log('Wyszukano wyniki');
     setSearchWords('');
     setImages([]);
+    console.log(images);
     setShowModal(false);
     setModalImage('');
     setCurrentPage(currentPage);
@@ -69,21 +90,10 @@ const App = () => {
     const searchWordsValue = event.target[1].value;
 
     setSearchWords(searchWordsValue);
+
     const page = 1;
     getImages(searchWordsValue, page);
     event.target.reset();
-  };
-
-  const loadMoreFn = () => {
-    loaderToggle(true);
-    getImages(searchWords, currentPage);
-  };
-
-  const pushImagesToState = response => {
-    const imagesFromResponse = response.data.hits;
-    let newSearchArray = [];
-    newSearchArray = [...images, ...imagesFromResponse];
-    setImages(newSearchArray);
   };
 
   return (
