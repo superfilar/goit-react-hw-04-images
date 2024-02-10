@@ -44,6 +44,6 @@ const Modal = ({ onClose, modalImage }) => {
 
 Modal.propTypes = {
   onClose: propTypes.func.isRequired,
-  modalImage: propTypes.element.isRequired,
+  modalImage: propTypes.element,
 };
 export default Modal;

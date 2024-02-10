@@ -50,7 +50,8 @@ const App = () => {
         `https://pixabay.com/api/?q=${words}&page=${page}&key=${API}&image_type=photo&orientation=horizontal&per_page=12`
       )
       .then(response => {
-        pushImagesToState(response, words);
+        console.log(page, words);
+        pushImagesToState(response, words, page);
         loaderToggle(false);
         setCurrentPage(currentPage => currentPage + 1);
       });
@@ -61,7 +62,7 @@ const App = () => {
     getImages(searchWords, currentPage);
   };
 
-  const pushImagesToState = (response, words) => {
+  const pushImagesToState = (response, words, page) => {
     const imagesFromResponse = response.data.hits;
     let newSearchArray = [];
     if (words !== searchWords) {
@@ -69,8 +70,10 @@ const App = () => {
     } else {
       if (images === imagesFromResponse) {
         newSearchArray = [...images];
-      } else {
+      } else if (page === currentPage) {
         newSearchArray = [...images, ...imagesFromResponse];
+      } else {
+        newSearchArray = [...images];
       }
     }
     setImages(newSearchArray);
