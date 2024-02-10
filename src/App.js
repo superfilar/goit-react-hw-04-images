@@ -88,7 +88,6 @@ const App = () => {
     setShowModal(false);
     setModalImage('');
     setCurrentPage(currentPage);
-    console.log('Jestes na stronie numer ' + currentPage);
 
     const searchWordsValue = event.target[1].value;
 
